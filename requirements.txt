@@ -1,0 +1,13 @@
+# ProtocolAnalyzer - Requirements
+#
+# This tool uses ONLY Python standard library.
+# No external dependencies required!
+#
+# Python 3.7+ required for:
+# - dataclasses
+# - typing features
+# - pathlib improvements
+#
+# Optional development dependencies:
+# pytest>=7.0.0  # For running tests with pytest instead of unittest
+# mypy>=0.990    # For type checking

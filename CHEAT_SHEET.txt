@@ -1,0 +1,327 @@
+================================================================================
+PROTOCOLANALYZER CHEAT SHEET
+================================================================================
+
+QUICK START
+-----------
+1. Clone: git clone https://github.com/DonkRonk17/ProtocolAnalyzer.git
+2. Run: python protocolanalyzer.py analyze ./your-project
+3. Compare: python protocolanalyzer.py compare websocket socket.io
+
+No dependencies required - Python 3.7+ only!
+
+================================================================================
+CLI COMMANDS
+--------------------------------------------------------------------------------
+
+ANALYZE PROJECT:
+  protocolanalyzer analyze <path>                    Basic analysis
+  protocolanalyzer analyze <path> -r realtime        Specify requirement
+  protocolanalyzer analyze <path> -o report.md       Output to file
+  protocolanalyzer analyze <path> -f markdown        Format: json|markdown|text
+  protocolanalyzer analyze <path> -v                 Verbose mode
+
+COMPARE PROTOCOLS:
+  protocolanalyzer compare websocket socket.io       Compare 2+ protocols
+  protocolanalyzer compare ws http grpc -f json      Multiple with format
+
+MIGRATION GUIDE:
+  protocolanalyzer migrate socket.io websocket       Get migration steps
+  protocolanalyzer migrate grpc http_rest -f md      Format as Markdown
+
+LIST PROTOCOLS:
+  protocolanalyzer list                              Show all protocols
+  protocolanalyzer list -c realtime                  Filter by category
+
+================================================================================
+REQUIREMENT TYPES
+--------------------------------------------------------------------------------
+
+  realtime            WebSocket, Socket.IO, MQTT (bidirectional)
+  request-response    HTTP/REST, GraphQL (client-initiated)
+  streaming           SSE (server push)
+  rpc                 gRPC (remote procedure calls)
+  auto                Auto-detect from codebase
+
+================================================================================
+PROTOCOL DATABASE
+--------------------------------------------------------------------------------
+
+Protocol        Category         Complexity   Best For
+---------       --------         ----------   --------
+WebSocket       realtime         3/10         Chat, gaming, live updates
+Socket.IO       realtime         6/10         Complex real-time, rooms
+HTTP/REST       request-response 2/10         APIs, CRUD, microservices
+HTTP Polling    request-response 4/10         Legacy, firewalls
+gRPC            rpc              7/10         High-perf microservices
+GraphQL         request-response 5/10         Flexible queries, mobile
+SSE             streaming        2/10         News feeds, notifications
+MQTT            realtime         5/10         IoT, low bandwidth
+
+================================================================================
+PYTHON API
+--------------------------------------------------------------------------------
+
+BASIC USAGE:
+  from protocolanalyzer import ProtocolAnalyzer
+  
+  analyzer = ProtocolAnalyzer()
+  result = analyzer.analyze("./project")
+  
+  print(result.architecture_type)
+  print(result.detected_protocols)
+  print(result.recommendations)
+
+COMPARE PROTOCOLS:
+  comparison = analyzer.compare_protocols(["websocket", "socket.io"])
+  for name, data in comparison.items():
+      print(f"{name}: {data['complexity']}/10")
+
+MIGRATION GUIDE:
+  guide = analyzer.get_migration_guide("socket.io", "websocket")
+  print(guide['difficulty'])
+  for step in guide['steps']:
+      print(step)
+
+EXPORT REPORTS:
+  json_output = analyzer.to_json(result)
+  markdown_output = analyzer.to_markdown(result)
+
+VERBOSE MODE:
+  analyzer = ProtocolAnalyzer(verbose=True)
+
+================================================================================
+OUTPUT FORMAT
+--------------------------------------------------------------------------------
+
+TEXT OUTPUT:
+  Protocol Analysis Report
+  ========================
+  Project: ./project
+  Architecture: full-stack
+  Complexity: 45.2
+  
+  Detected Protocols:
+    - websocket: 3 files, 12 refs, complexity 28.5
+  
+  Recommendations:
+    1. WebSocket (score: 82/100)
+
+JSON OUTPUT:
+  {
+    "project_path": "./project",
+    "architecture_type": "full-stack",
+    "detected_protocols": [...],
+    "recommendations": [...]
+  }
+
+MARKDOWN OUTPUT:
+  # Protocol Analysis Report
+  ## Detected Protocols
+  | Protocol | Files | Refs | Complexity |
+  ## Recommendations
+  ### 1. WebSocket (Score: 82/100)
+
+================================================================================
+COMPLEXITY SCORING
+--------------------------------------------------------------------------------
+
+Score = base_complexity * scale * confidence * spread
+
+Factors:
+  - Base complexity: Protocol inherent difficulty (1-10)
+  - Scale factor: Lines of code usage (1.0-2.0)
+  - Confidence: Detection pattern confidence (0.5-1.0)
+  - Spread factor: Number of files (1.0-1.5)
+
+Final score: 0-100 (higher = more complex)
+
+================================================================================
+RECOMMENDATION SCORING
+--------------------------------------------------------------------------------
+
+Bonuses:
+  +20 points    Matches your requirement category
+  +25 points    Already in use (consistency)
+  +10 points    Same category as existing protocols
+  +10 points    Simple protocol (complexity <= 3)
+
+Penalties:
+  -27 points    High complexity (max penalty)
+
+================================================================================
+WARNINGS
+--------------------------------------------------------------------------------
+
+Common warnings you might see:
+
+[!] Socket.IO detected: Ensure client/server versions match
+    → Socket.IO v4 client requires v4 server
+
+[!] Multiple real-time protocols detected
+    → Consider consolidating for simplicity
+
+[!] High complexity protocols detected
+    → Review if simpler alternatives exist
+
+================================================================================
+MIGRATION COMPLEXITY
+--------------------------------------------------------------------------------
+
+LOW:      Same category, few files            < 1 hour
+MEDIUM:   Same category, many files           2-8 hours
+HIGH:     Different category, high usage      8-40+ hours
+
+================================================================================
+DETECTION PATTERNS
+--------------------------------------------------------------------------------
+
+WebSocket:
+  - new WebSocket(            - import websocket
+  - ws://  wss://             - .onmessage =
+
+Socket.IO:
+  - import socketio           - require('socket.io')
+  - io('http                  - .emit(
+
+HTTP/REST:
+  - import requests           - fetch(
+  - axios.                    - requests.get/post
+
+gRPC:
+  - import grpc               - .proto
+  - grpc.insecure_channel     - protobuf
+
+GraphQL:
+  - gql`                      - useQuery
+  - ApolloClient              - graphene
+
+SSE:
+  - new EventSource           - text/event-stream
+
+MQTT:
+  - import paho               - mqtt://
+  - mqtt.Client               - .publish(
+
+================================================================================
+ARCHITECTURE DETECTION
+--------------------------------------------------------------------------------
+
+full-stack    Client + Server patterns detected
+backend       Only server patterns (listen, serve, @app)
+frontend      Only client patterns (fetch, connect, io)
+unknown       No protocol patterns found
+
+================================================================================
+FILE EXTENSIONS SCANNED
+--------------------------------------------------------------------------------
+
+.py   Python
+.js   JavaScript
+.ts   TypeScript
+.jsx  React JSX
+.tsx  React TypeScript
+.java Java
+.go   Go
+.rs   Rust
+
+================================================================================
+DIRECTORIES SKIPPED
+--------------------------------------------------------------------------------
+
+node_modules    __pycache__    .git        .venv
+venv            env            .env        dist
+build           .cache         coverage    .pytest_cache
+.mypy_cache     target         vendor      (dot-prefixed)
+
+================================================================================
+INTEGRATION WITH TEAM BRAIN
+--------------------------------------------------------------------------------
+
+With SynapseLink:
+  from synapselink import quick_send
+  result = analyzer.analyze("./project")
+  quick_send("TEAM", "Protocol Analysis", analyzer.to_markdown(result))
+
+With AgentHandoff:
+  from agenthandoff import AgentHandoff
+  handoff.create_handoff(target="IRIS", context={
+      "protocol_analysis": analyzer.to_json(result)
+  })
+
+With BuildEnvValidator:
+  for proto in result.detected_protocols:
+      if proto.name == "grpc":
+          bev.check_tool("protoc", "protobuf compiler")
+
+================================================================================
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+No protocols detected?
+  → Check file extensions are in scan list
+  → Verify not scanning inside node_modules
+  → Use --verbose for debugging
+
+False positives?
+  → Check confidence scores in JSON output
+  → High confidence (0.9+) is typically accurate
+
+Wrong recommendation?
+  → Specify --requirement explicitly
+  → Check if your use case matches the category
+
+Migration time seems wrong?
+  → Use difficulty (LOW/MEDIUM/HIGH) as primary indicator
+  → Estimates based on file count
+
+================================================================================
+RESOURCES
+--------------------------------------------------------------------------------
+
+Documentation:   AutoProjects/ProtocolAnalyzer/README.md
+Examples:        AutoProjects/ProtocolAnalyzer/EXAMPLES.md
+Integration:     AutoProjects/ProtocolAnalyzer/INTEGRATION_PLAN.md
+Quick Starts:    AutoProjects/ProtocolAnalyzer/QUICK_START_GUIDES.md
+GitHub:          https://github.com/DonkRonk17/ProtocolAnalyzer
+Issues:          https://github.com/DonkRonk17/ProtocolAnalyzer/issues
+
+================================================================================
+QUICK REFERENCE - ONE LINERS
+--------------------------------------------------------------------------------
+
+# Analyze with auto-detection
+python protocolanalyzer.py analyze ./project
+
+# Analyze for real-time needs
+python protocolanalyzer.py analyze ./project -r realtime
+
+# Compare WebSocket vs Socket.IO
+python protocolanalyzer.py compare websocket socket.io
+
+# Get migration steps
+python protocolanalyzer.py migrate socket.io websocket
+
+# Generate Markdown docs
+python protocolanalyzer.py analyze ./project -f markdown -o PROTOCOLS.md
+
+# Generate JSON for CI/CD
+python protocolanalyzer.py analyze ./project -f json -o analysis.json
+
+# List all real-time protocols
+python protocolanalyzer.py list -c realtime
+
+================================================================================
+ABOUT
+--------------------------------------------------------------------------------
+
+ProtocolAnalyzer v1.0
+Built by: ATLAS (Team Brain)
+For: Logan Smith / Metaphy LLC
+Requested by: IRIS (Tool Request #20)
+GitHub: https://github.com/DonkRonk17/ProtocolAnalyzer
+License: MIT
+
+The right protocol is the simplest one that solves your problem.
+
+================================================================================
